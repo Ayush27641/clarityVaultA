@@ -5,7 +5,7 @@ services:
     buildCommand: pip install -r requirements.txt
     # Use a single worker because some legacy routes keep state in-memory (document_store).
     # Use `python -m gunicorn` to avoid PATH issues and log to stdout for Render.
-    startCommand: python -m gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --access-logfile - --error-logfile - --log-level info
+    startCommand: python -m gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --access-logfile - --error-logfile - --log-level info --capture-output
     envVars:
       - key: PYTHON_VERSION
         value: "3.11.0"
