@@ -7,7 +7,7 @@ from flask import Blueprint, render_template, request, jsonify
 from werkzeug.utils import secure_filename
 
 import config
-from services import pdf_service, groq_service
+from services import document_service, groq_service
 
 # Create blueprint
 main = Blueprint('main', __name__)
@@ -48,7 +48,7 @@ def classify():
         return jsonify({'error': 'No file selected'}), 400
     
     if not allowed_file(file.filename):
-        return jsonify({'error': 'Only PDF files are allowed'}), 400
+        return jsonify({'error': 'Unsupported file type. Allowed: PDF, Images (PNG, JPG, BMP, TIFF, WEBP), DOCX, PPTX, TXT'}), 400
     
     try:
         # Ensure upload folder exists
@@ -59,14 +59,14 @@ def classify():
         filepath = os.path.join(config.UPLOAD_FOLDER, filename)
         file.save(filepath)
         
-        # Extract text from PDF (all pages)
-        pages = pdf_service.extract_text_from_pdf(filepath)
+        # Extract text from the uploaded document
+        pages = document_service.extract_text(filepath)
         
         # Clean up the uploaded file
         os.remove(filepath)
         
         if not pages:
-            return jsonify({'error': 'Could not extract text from PDF'}), 400
+            return jsonify({'error': 'Could not extract text from the uploaded file'}), 400
         
         # Combine text for classification
         full_text = ' '.join([p['content'] for p in pages])

@@ -3,11 +3,16 @@ services:
     name: clarityvault
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    # Use a single worker because some legacy routes keep state in-memory (document_store).
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
-      - key: GROQ_API_KEY
+        value: "3.11.0"
+      - key: UPLOAD_FOLDER
+        value: "/tmp/clarityvault_uploads"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GROQ_API_KEYS
         sync: false
       - key: YOUTUBE_API_KEY
         sync: false
@@ -16,4 +21,4 @@ services:
       - key: SUPABASE_KEY
         sync: false
       - key: JWT_SECRET
-        sync: false
+        generateValue: true
